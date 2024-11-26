@@ -47,16 +47,27 @@ app.get('/reclaim/generate-config', async (req, res) => {
   
   // Route to receive proofs
   app.post('/receive-proofs', (req, res) => {
-    const proofs = req.body
-    logger.info('Received proofs:', proofs)
-    logger.info('Stringified Received proofs:', JSON.stringify(proofs, null, 2))
-    const proofsJson = JSON.parse(decodeURIComponent(proofs))
-    logger.info('Received proofs JSON:', proofsJson)
-    const proofContext = proofsJson.claimData.context
-    logger.info('Proof context:', proofContext)
+    const proofs = req.body; // Assuming 'proofs' is the key in the URL-encoded data
+    logger.info('Received proofs:', proofs);
 
-    // Process the proofs here
-    return res.sendStatus(200)
+    try {
+        // Decode the entire body as a URL-encoded string
+        const decodedBody = decodeURIComponent(req.body);
+        
+        // Parse the decoded string as JSON
+        const proofsJson = JSON.parse(decodedBody);
+        
+        logger.info('Received proofs JSON:', proofsJson);
+        
+        const proofContext = proofsJson.claimData.context;
+        logger.info('Proof context:', proofContext);
+
+        // Process the proofs here
+        return res.sendStatus(200);
+    } catch (error) {
+        logger.error('Error processing proofs:', error);
+        return res.status(400).json({ error: 'Invalid proofs data' });
+    }
   })
   
   app.listen(port, () => {
