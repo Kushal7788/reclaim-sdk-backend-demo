@@ -35,6 +35,11 @@ app.get('/reclaim/generate-config', async (req, res) => {
   app.post('/receive-proofs', (req, res) => {
     const proofs = req.body
     console.log('Received proofs:', proofs)
+    const proofsJson = JSON.parse(decodeURIComponent(proofs))
+    console.log('Received proofs JSON:', proofsJson)
+    const proofContext = proofsJson.claimData.context
+    console.log('Proof context:', proofContext)
+
     // Process the proofs here
     return res.sendStatus(200)
   })
