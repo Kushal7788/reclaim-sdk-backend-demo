@@ -9,19 +9,7 @@ const port = 3002
 
 // Middleware
 app.use(cors()) // Enable CORS for all routes
-// app.use(express.json())
-// app.use(express.urlencoded({ extended: true })) // For parsing URL-encoded bodies
-
-// Middleware to capture raw body
-app.use((req, res, next) => {
-  req.rawBody = '';
-  req.on('data', chunk => {
-    req.rawBody += chunk;
-  });
-  req.on('end', () => {
-    next();
-  });
-});
+app.use(express.text({ type: '*/*', limit: '50mb' }));
 
 // Configure winston logger
 const logger = winston.createLogger({
@@ -58,12 +46,15 @@ app.get('/reclaim/generate-config', async (req, res) => {
 
 // Route to receive proofs
 app.post('/receive-proofs', (req, res) => {
-  const proofString = req.body
-  try{
-    // get proofs from request body
-    console.log('Proof string:', proofString)
-    let proofs = JSON.parse(proofString)
-    logger.info('Proofs:', proofs);
+  try {
+    console.log('Received body:', req.body);
+
+    const decodedBody = decodeURIComponent(req.body);
+    console.log('Decoded body:', decodedBody);
+    const claimData = JSON.parse(decodedBody);
+
+    console.log('Claim data:', claimData);
+
     return res.sendStatus(200);
   } catch (error) {
     logger.error('Error processing proofs:', error);
