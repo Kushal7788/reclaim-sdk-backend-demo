@@ -52,7 +52,7 @@ app.get('/reclaim/generate-config', async (req, res) => {
   try {
     const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
 
-    reclaimProofRequest.setAppCallbackUrl('https://d723-49-37-251-143.ngrok-free.app/receive-proofs')
+    reclaimProofRequest.setAppCallbackUrl('https://reclaim-sdk-backend-demo.onrender.com/receive-proofs')
 
     const requestUrl = await reclaimProofRequest.getRequestUrl()
 
