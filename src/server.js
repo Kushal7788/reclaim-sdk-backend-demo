@@ -1,15 +1,34 @@
-const express = require('express')
 const { ReclaimProofRequest } = require('@reclaimprotocol/js-sdk')
-const cors = require('cors')
 require('dotenv').config() // Load environment variables
 const winston = require('winston')
+
+
+const express = require('express')
+const cors = require('cors')
 
 const app = express()
 const port = 3002
 
 // Middleware
 app.use(cors()) // Enable CORS for all routes
+app.use(express.json())
 app.use(express.text({ type: '*/*', limit: '50mb' }));
+
+
+// Route to receive proofs
+app.post('/receive-proofs', (req, res) => {
+  try {
+    const decodedBody = decodeURIComponent(req.body);
+    const proofData = JSON.parse(decodedBody);
+
+    // TODO: Process the proof data here
+
+    return res.sendStatus(200);
+  } catch (error) {
+    logger.error('Error processing proofs:', error);
+    return res.status(400).json({ error: 'Invalid proofs data' });
+  }
+})
 
 // Configure winston logger
 const logger = winston.createLogger({
@@ -33,11 +52,13 @@ app.get('/reclaim/generate-config', async (req, res) => {
   try {
     const reclaimProofRequest = await ReclaimProofRequest.init(APP_ID, APP_SECRET, PROVIDER_ID)
 
-    reclaimProofRequest.setAppCallbackUrl('https://reclaim-backend-demo.onrender.com/receive-proofs')
+    reclaimProofRequest.setAppCallbackUrl('https://d723-49-37-251-143.ngrok-free.app/receive-proofs')
+
+    const requestUrl = await reclaimProofRequest.getRequestUrl()
 
     const reclaimProofRequestConfig = reclaimProofRequest.toJsonString()
 
-    return res.json({ reclaimProofRequestConfig })
+    return res.json({ requestUrl, reclaimProofRequestConfig })
   } catch (error) {
     logger.error('Error generating request config:', error)
     return res.status(500).json({ error: 'Failed to generate request config' })
@@ -47,13 +68,13 @@ app.get('/reclaim/generate-config', async (req, res) => {
 // Route to receive proofs
 app.post('/receive-proofs', (req, res) => {
   try {
-    console.log('Received body:', req.body);
+    // const decodedBody = decodeURIComponent(req.body);
+    console.log('req.body', req.body)
+    const proofData = JSON.parse(req.body);
+    console.log('proofData', proofData)
+    logger.info('Proof data:', proofData);
 
-    const decodedBody = decodeURIComponent(req.body);
-    console.log('Decoded body:', decodedBody);
-    const claimData = JSON.parse(decodedBody);
-
-    console.log('Claim data:', claimData);
+    // TODO: Process the proof data here
 
     return res.sendStatus(200);
   } catch (error) {
